@@ -1,6 +1,6 @@
 # Resonance Grand -- Model D Concert Grand
 ## Introduction
-This Kontakt virtual instrument library is sampled by Xinghai (星海) Piano -- Model D (1994).
+This Kontakt virtual instrument library is sampled by Hsinghai (星海) Piano -- Model D (1994).
 
 This piano is fully sampled not by me. The source is [here](http://www.bianquzy.com/rg/), 
 and its introduction is written in
