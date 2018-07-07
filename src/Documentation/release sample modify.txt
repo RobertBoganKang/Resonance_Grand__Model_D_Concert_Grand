@@ -3,11 +3,29 @@ on init
 	declare $i 
 	declare %ids[512] { active event IDs in no particular order, NONE for unused elements } 
 	declare %notes[512] { note number for each of the above events } 
-
 	{ turn off Kontakt's builtin sustain pedal script } 
 	SET_CONDITION(NO_SYS_SCRIPT_PEDAL) 
 end on 
-on note 
+
+on note
+	{ clean up all release event except itself }
+	$i := 0
+	while ($i <= num_elements(%ids) - 1)
+		if (%ids[$i] # $NONE and %notes[$i] = $EVENT_NOTE) 
+			note_off(%ids[$i]) 
+			%ids[$i] := $NONE 
+		end if 
+		inc($i) 
+	end while
+	{ disallow all groups, only allow non-release sample trigger }
+	disallow_group($ALL_GROUPS)
+	$i := 0
+	while ($i <= $NUM_GROUPS - 1)
+        if (_get_engine_par($ENGINE_PAR_RELEASE_TRIGGER, $i, -1, -1) = 0)
+			allow_group($i)
+        end if
+        inc($i)
+    end while
 	{ add this note event to the first empty array slot } 
 	$i := search(%ids, 0) 
 	if ($i # -1) 
@@ -15,16 +33,17 @@ on note
 		%notes[$i] := $EVENT_NOTE 
 	else 
 		ignore_event($EVENT_ID) { just a safety precaution in case the polyphony would reach 512 } 
-	end if 
+	end if
 end on 
 
 on release 
+    note_off ($EVENT_ID)
+    disallow_group($ALL_GROUPS)
 	if (%CC[64] >= 64) 
-			{ ignore note-off when sustain pedal is pressed } 
-			ignore_event($EVENT_ID) 
-		else 
-			{ release all event IDs with the same note number as this event } 
-			$i := 0 
+		{ ignore note-off when sustain pedal is pressed } 
+		ignore_event($EVENT_ID) 
+	else 
+		$i := 0
 		while ($i <= num_elements(%ids)-1) 
 			if (%ids[$i] # $NONE and %notes[$i] = $EVENT_NOTE) 
 				note_off(%ids[$i]) 
@@ -32,6 +51,8 @@ on release
 			end if 
 			inc($i) 
 		end while 
+
+		allow_group($ALL_GROUPS)
 	end if 
 end on 
 
