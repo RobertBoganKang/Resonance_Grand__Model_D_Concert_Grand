@@ -1,0 +1,51 @@
+on init 
+	declare const $NONE := 0 
+	declare $i 
+	declare %ids[512] { active event IDs in no particular order, NONE for unused elements } 
+	declare %notes[512] { note number for each of the above events } 
+
+	{ turn off Kontakt's builtin sustain pedal script } 
+	SET_CONDITION(NO_SYS_SCRIPT_PEDAL) 
+end on 
+on note 
+	{ add this note event to the first empty array slot } 
+	$i := search(%ids, 0) 
+	if ($i # -1) 
+		%ids[$i] := $EVENT_ID 
+		%notes[$i] := $EVENT_NOTE 
+	else 
+		ignore_event($EVENT_ID) { just a safety precaution in case the polyphony would reach 512 } 
+	end if 
+end on 
+
+on release 
+	if (%CC[64] >= 64) 
+			{ ignore note-off when sustain pedal is pressed } 
+			ignore_event($EVENT_ID) 
+		else 
+			{ release all event IDs with the same note number as this event } 
+			$i := 0 
+		while ($i <= num_elements(%ids)-1) 
+			if (%ids[$i] # $NONE and %notes[$i] = $EVENT_NOTE) 
+				note_off(%ids[$i]) 
+				%ids[$i] := $NONE 
+			end if 
+			inc($i) 
+		end while 
+	end if 
+end on 
+
+on controller 
+	{ if sustain pedal released } 
+	if (%CC_TOUCHED[64] # 0 and %CC[64] < 64) 
+		{ release all events for which the key is no longer held pressed } 
+		$i := 0 
+		while ($i <= num_elements(%ids)-1) 
+			if (%ids[$i] # $NONE and %KEY_DOWN[%notes[$i]] = 0) 
+				note_off(%ids[$i]) 
+				%ids[$i] := $NONE 
+			end if 
+			inc($i) 
+		end while 
+	end if 
+end on
