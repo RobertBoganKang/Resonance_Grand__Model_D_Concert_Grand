@@ -8,41 +8,42 @@ on init
 end on 
 
 on note
-	{ clean up all release event except itself }
-	$i := 0
-	while ($i < num_elements(%ids))
-		if (%ids[$i] # $NONE and %notes[$i] = $EVENT_NOTE) 
-			note_off(%ids[$i]) 
-			%ids[$i] := $NONE 
-		end if 
-		inc($i) 
-	end while
-	{ disallow all groups, only allow non-release sample trigger }
-	disallow_group($ALL_GROUPS)
-	$i := 0
-	while ($i < $NUM_GROUPS)
-        if (_get_engine_par($ENGINE_PAR_RELEASE_TRIGGER, $i, -1, -1) = 0)
-			allow_group($i)
-        end if
-        inc($i)
-    end while
+	if (%CC[64] >= 64)
+		{ clean up all release event except itself }
+		$i := 0
+		while ($i < num_elements(%ids))
+			if (%ids[$i] # $NONE and %notes[$i] = $EVENT_NOTE) 
+				note_off(%ids[$i]) 
+				%ids[$i] := $NONE 
+			end if 
+			inc($i) 
+		end while
+		{ disallow all groups, only allow non-release sample trigger }
+		disallow_group($ALL_GROUPS)
+		$i := 0
+		while ($i < $NUM_GROUPS)
+			if (_get_engine_par($ENGINE_PAR_RELEASE_TRIGGER, $i, -1, -1) = 0)
+				allow_group($i)
+			end if
+			inc($i)
+		end while
+	end if
 	{ add this note event to the first empty array slot } 
 	$i := search(%ids, 0) 
 	if ($i # -1) 
 		%ids[$i] := $EVENT_ID 
 		%notes[$i] := $EVENT_NOTE 
-	else 
+	else
 		ignore_event($EVENT_ID) { just a safety precaution in case the polyphony would reach 512 } 
 	end if
 end on 
 
 on release 
-    note_off ($EVENT_ID)
-    disallow_group($ALL_GROUPS)
+	note_off ($EVENT_ID)
 	if (%CC[64] >= 64) 
 		{ ignore note-off when sustain pedal is pressed } 
 		ignore_event($EVENT_ID) 
-	else 
+	else
 		$i := 0
 		while ($i < num_elements(%ids)) 
 			if (%ids[$i] # $NONE and %notes[$i] = $EVENT_NOTE) 
@@ -51,7 +52,6 @@ on release
 			end if 
 			inc($i) 
 		end while 
-		allow_group($ALL_GROUPS)
 	end if 
 end on 
 
@@ -60,7 +60,7 @@ on controller
 	if (%CC_TOUCHED[64] # 0 and %CC[64] < 64) 
 		{ release all events for which the key is no longer held pressed } 
 		$i := 0 
-		while ($i <= num_elements(%ids)-1) 
+		while ($i < num_elements(%ids)) 
 			if (%ids[$i] # $NONE and %KEY_DOWN[%notes[$i]] = 0) 
 				note_off(%ids[$i]) 
 				%ids[$i] := $NONE 
