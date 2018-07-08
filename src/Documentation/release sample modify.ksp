@@ -51,7 +51,6 @@ on release
 			end if 
 			inc($i) 
 		end while 
-
 		allow_group($ALL_GROUPS)
 	end if 
 end on 
