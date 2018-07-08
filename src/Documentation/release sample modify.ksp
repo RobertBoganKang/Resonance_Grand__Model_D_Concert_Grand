@@ -20,7 +20,7 @@ on note
 	{ disallow all groups, only allow non-release sample trigger }
 	disallow_group($ALL_GROUPS)
 	$i := 0
-	while ($i <= $NUM_GROUPS - 1)
+	while ($i < $NUM_GROUPS)
         if (_get_engine_par($ENGINE_PAR_RELEASE_TRIGGER, $i, -1, -1) = 0)
 			allow_group($i)
         end if
