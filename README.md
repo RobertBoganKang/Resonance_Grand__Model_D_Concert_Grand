@@ -6,7 +6,12 @@ This piano is fully sampled not by me. The source is [here](http://www.bianquzy.
 and its introduction is written in
 [document](https://github.com/RobertBoganKang/Resonance_Grand__Model_D_Concert_Grand/blob/master/src/Documentation/%E8%AF%B4%E6%98%8E.pdf).
 
-This virtual instrument is reconstructed by myself. The instruments could meet basic requirements of music industry.
+This virtual instrument is reconstructed by myself. The instruments could meet basic requirements of music industry. 
+
+It supports:
+* staccato with nice release sample
+* sustain pedal with nice resonance sound
+* half pedaling with slow mute
 
 The demo files is in [here](https://github.com/RobertBoganKang/Resonance_Grand__Model_D_Concert_Grand/tree/master/src/Documentation).
 
