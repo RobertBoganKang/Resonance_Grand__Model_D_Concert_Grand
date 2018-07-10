@@ -3,12 +3,14 @@ on init
 	declare $i 
 	declare %ids[512] { active event IDs in no particular order, NONE for unused elements } 
 	declare %notes[512] { note number for each of the above events } 
+	declare $volume
+	declare $temp
 	{ turn off Kontakt's builtin sustain pedal script } 
 	SET_CONDITION(NO_SYS_SCRIPT_PEDAL) 
 end on 
 
 on note
-	if (%CC[64] >= 64)
+	if (%CC[64] >= 32)
 		{ clean up all release event except itself }
 		$i := 0
 		while ($i < num_elements(%ids))
@@ -36,11 +38,13 @@ on note
 	else
 		ignore_event($EVENT_ID) { just a safety precaution in case the polyphony would reach 512 } 
 	end if
+	{ half pedaling }
+	$volume := 0
 end on 
 
 on release 
 	note_off ($EVENT_ID)
-	if (%CC[64] >= 64) 
+	if (%CC[64] >= 32) 
 		{ ignore note-off when sustain pedal is pressed } 
 		ignore_event($EVENT_ID) 
 	else
@@ -55,9 +59,9 @@ on release
 	end if 
 end on 
 
-on controller 
+on controller
 	{ if sustain pedal released } 
-	if (%CC_TOUCHED[64] # 0 and %CC[64] < 64) 
+	if (%CC_TOUCHED[64] # 0 and %CC[64] < 32) 
 		{ release all events for which the key is no longer held pressed } 
 		$i := 0 
 		while ($i < num_elements(%ids)) 
@@ -65,7 +69,21 @@ on controller
 				note_off(%ids[$i]) 
 				%ids[$i] := $NONE 
 			end if 
-			inc($i) 
+			inc($i)
 		end while 
 	end if 
+	{ helf pedaling }
+	if (%CC[64] >= 32)
+		$temp := -30000 * (127 - %CC[64]) / 127
+		$i := 0
+		while ($i < num_elements(%ids)) 
+			if (%ids[$i] # $NONE and %KEY_DOWN[%notes[$i]] = 0 and %notes[$i] < 92)
+				if ($temp < $volume)
+					$volume := (8 * $temp + 2 * $volume) / 20
+				end if
+				change_vol(%ids[$i], $volume, 0)
+			end if
+			inc($i)
+		end while
+	end if
 end on
