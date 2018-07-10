@@ -74,7 +74,7 @@ on controller
 	end if 
 	{ helf pedaling }
 	if (%CC[64] >= 32)
-		$temp := -30000 * (127 - %CC[64]) / 127
+		$temp := -50000 * (127 - %CC[64]) / 127
 		$i := 0
 		while ($i < num_elements(%ids)) 
 			if (%ids[$i] # $NONE and %KEY_DOWN[%notes[$i]] = 0 and %notes[$i] < 92)
