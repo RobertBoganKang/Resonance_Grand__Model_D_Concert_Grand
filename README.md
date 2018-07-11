@@ -9,7 +9,7 @@ and its introduction is written in
 This virtual instrument is reconstructed by myself. The instruments could meet basic requirements of music industry. 
 
 It supports:
-* staccato with nice release sample
+* staccato with nice release sound
 * sustain pedal with nice resonance sound
 * half pedaling with slow mute
 
