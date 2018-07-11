@@ -79,7 +79,7 @@ on controller
 		while ($i < num_elements(%ids)) 
 			if (%ids[$i] # $NONE and %KEY_DOWN[%notes[$i]] = 0 and %notes[$i] < 92)
 				if ($temp < $volume)
-					$volume := (8 * $temp + 2 * $volume) / 20
+					$volume := ($temp + $volume) / 2
 				end if
 				change_vol(%ids[$i], $volume, 0)
 			end if
